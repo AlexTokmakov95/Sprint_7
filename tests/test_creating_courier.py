@@ -1,5 +1,6 @@
 import requests
 import allure
+from urls import Urls
 
 
 class TestCreatingCourier:
@@ -7,7 +8,8 @@ class TestCreatingCourier:
     def test_create_courier_correct_data_create_successfull(self, register_new_courier):
 
         courier = register_new_courier 
-        response = requests.post('https://qa-scooter.praktikum-services.ru/api/v1/courier', data = courier)
+        with allure.step("Отправляем запрос на создание курьера"):
+            response = requests.post(Urls.url_create_courier, data = courier)
 
         r = response.json()
         
@@ -18,8 +20,11 @@ class TestCreatingCourier:
     def test_create_courier_duplicate_data_creation_impossible(self, register_new_courier):
 
         courier = register_new_courier 
-        response = requests.post('https://qa-scooter.praktikum-services.ru/api/v1/courier', data = courier)
-        response = requests.post('https://qa-scooter.praktikum-services.ru/api/v1/courier', data = courier)
+        
+        with allure.step("Отправляем запрос на создание курьера"):
+            response = requests.post(Urls.url_create_courier, data = courier)
+        with allure.step("Отправляем повторный запрос на создание курьера с такими же данными"):
+            response = requests.post(Urls.url_create_courier, data = courier)
 
         r = response.json()
 
@@ -30,7 +35,19 @@ class TestCreatingCourier:
     def test_create_courier_without_login_creation_impossible(self, register_new_courier_without_login):
 
         courier = register_new_courier_without_login 
-        response = requests.post('https://qa-scooter.praktikum-services.ru/api/v1/courier', data = courier)
+        with allure.step("Отправляем запрос на создание курьера"):
+            response = requests.post(Urls.url_create_courier, data = courier)
+
+        r = response.json()
+
+        assert response.status_code == 400 and r['message'] == "Недостаточно данных для создания учетной записи"  
+
+    @allure.title('Нельзя создать курьера без пороля')
+    def test_create_courier_without_password_creation_impossible(self, register_new_courier_without_password):
+
+        courier = register_new_courier_without_password 
+        with allure.step("Отправляем запрос на создание курьера"):
+            response = requests.post(Urls.url_create_courier, data = courier)
 
         r = response.json()
 

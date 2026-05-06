@@ -1,6 +1,7 @@
 import requests
 import pytest
 import allure
+from urls import Urls
 
 class TestCreateOrder:
 
@@ -23,15 +24,10 @@ class TestCreateOrder:
             "comment": "Saske, come back to Konoha",
             "color": color_data
         }
-
-        response = requests.post('https://qa-scooter.praktikum-services.ru/api/v1/orders', data = data_order) 
+        
+        with allure.step("Отправляем запрос на создание заказа"):
+            response = requests.post(Urls.url_create_order, data = data_order) 
 
         r = response.json()
-
-        if 'track' in r:
-            track_order = r['track']
-            print(f"Заказ успешно создан. track: {track_order}")
-        else:
-            print("track не найден в ответе")
         
-        assert response.status_code == 201 
+        assert response.status_code == 201 and "track" in r
